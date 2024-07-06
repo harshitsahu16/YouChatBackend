@@ -7,11 +7,9 @@ const cors = require('cors');
 const app = express();
 const server = require('http').createServer(app);
 
-const URLL = 'https://creative-platypus-200125.netlify.app';
-
 const io = require('socket.io')(server, {
     cors: {
-        origin: URLL || 'http://localhost:3000',
+        origin: ['https://creative-platypus-200125.netlify.app' , 'http://localhost:3000'],
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
     }
