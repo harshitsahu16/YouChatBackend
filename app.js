@@ -155,22 +155,46 @@ app.post('/api/conversation', async (req,res) => {
     }
 });
 
-app.get('/api/conversations/:userId' , async(req,res) => {
+app.get('/api/conversations/:userId', async (req, res) => {
     try {
         const userId = req.params.userId;
-        const conversations = await Conversation.find({members: {$in: [userId]}});
-        const conversationOtherUserData = Promise.all(conversations.map(async (conversation) => {
+        
+        // Find all conversations where the userId is in the members array
+        const conversations = await Conversation.find({ members: { $in: [userId] } });
+
+        // Map over each conversation to get details of the other user
+        const conversationOtherUserData = await Promise.all(conversations.map(async (conversation) => {
+            // Find the receiver's id (the other participant in the conversation)
             const receiverId = conversation.members.find((member) => member !== userId);
+            
+            // Fetch user details of the receiver
             const user = await Users.findById(receiverId);
-            return {user: { receiverId: user._id,
-                email:user.email,fullName:user.fullName
-            }, conversationId: conversation._id}
-        }))
-        res.status(200).json(await conversationOtherUserData);
+
+            if (user) {
+                return {
+                    user: {
+                        receiverId: user._id,
+                        email: user.email,
+                        fullName: user.fullName
+                    },
+                    conversationId: conversation._id
+                };
+            } else {
+                // Handle case where user is not found (though this should ideally not happen)
+                console.error(`User not found for receiverId: ${receiverId}`);
+                return {
+                    user: null, // Return null if user is not found
+                    conversationId: conversation._id
+                };
+            }
+        }));
+
+        res.status(200).json(conversationOtherUserData);
     } catch (error) {
-        console.log(error,'Error');
+        console.error('Error fetching conversations:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-})
+});
 
 app.post('/api/message', async(req,res) => {
     try {
