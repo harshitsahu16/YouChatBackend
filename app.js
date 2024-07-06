@@ -9,7 +9,7 @@ const server = require('http').createServer(app);
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: ['https://radiant-swan-184144.netlify.app/' , 'http://localhost:3000'],
+        origin: ['https://radiant-swan-184144.netlify.app' , 'http://localhost:3000'],
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
     }
@@ -155,40 +155,22 @@ app.post('/api/conversation', async (req,res) => {
     }
 });
 
-app.get('/api/conversations/:userId', async (req, res) => {
+app.get('/api/conversations/:userId' , async(req,res) => {
     try {
         const userId = req.params.userId;
-        const conversations = await Conversation.find({ members: { $in: [userId] } });
-        
-        const conversationOtherUserData = await Promise.all(conversations.map(async (conversation) => {
+        const conversations = await Conversation.find({members: {$in: [userId]}});
+        const conversationOtherUserData = Promise.all(conversations.map(async (conversation) => {
             const receiverId = conversation.members.find((member) => member !== userId);
             const user = await Users.findById(receiverId);
-
-            if (user) {
-                return {
-                    user: {
-                        receiverId: user._id,
-                        email: user.email,
-                        fullName: user.fullName
-                    },
-                    conversationId: conversation._id
-                };
-            } else {
-                console.error(`User not found for receiverId: ${receiverId}`);
-                return {
-                    user: null,
-                    conversationId: conversation._id
-                };
-            }
-        }));
-
-        res.status(200).json(conversationOtherUserData);
+            return {user: { receiverId: user._id,
+                email:user.email,fullName:user.fullName
+            }, conversationId: conversation._id}
+        }))
+        res.status(200).json(await conversationOtherUserData);
     } catch (error) {
-        console.log(error, 'Error');
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.log(error,'Error');
     }
-});
-
+})
 
 app.post('/api/message', async(req,res) => {
     try {
