@@ -1,6 +1,7 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const PORT = process.env.PORT || 8000;
 const cors = require('cors');
 const io = require('socket.io')(8080, {
     cors: {
@@ -24,8 +25,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 app.use(cors());
 
-
-const port = process.env.PORT || 8000;
 
 //socket.io
 let users = [];
@@ -216,6 +215,6 @@ app.get('/api/users/:userId' , async(req,res) => {
     }
 })
 
-app.listen(port , () => {
-    console.log('Server is listening on port' + port);
+app.listen(PORT , () => {
+    console.log('Server is listening on port' + PORT);
 });
