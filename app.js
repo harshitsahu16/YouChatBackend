@@ -68,6 +68,7 @@ app.get('/' , (req,res) => {
 app.post('/api/register' , async (req,res,next) => {
     try{
         const {fullName,email,password} = req.body;
+        console.log(req.body);
 
         if(!fullName || !email || !password){
             res.status(400).send('Please fill all required fields');
