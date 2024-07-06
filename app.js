@@ -1,16 +1,18 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const http = require('http');
+
 const PORT = process.env.PORT || 8000;
+
 const cors = require('cors');
-const io = require('socket.io')(8080, {
+const app = express();
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
     cors: {
         origin: '*',
     }
 });
-
-const app = express();
-
 //connnect db
 require('./db/connection');
 
