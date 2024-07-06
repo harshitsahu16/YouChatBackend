@@ -65,32 +65,45 @@ app.get('/' , (req,res) => {
     res.send('Welcome to my server');
 });
 
-app.post('/api/register' , async (req,res,next) => {
-    try{
-        const {fullName,email,password} = req.body;
-        console.log(req.body);
+app.post('/api/register', async (req, res) => {
+    try {
+        const { fullName, email, password } = req.body;
 
-        if(!fullName || !email || !password){
-            res.status(400).send('Please fill all required fields');
-        } else {
-            const isAlreadyExist = await Users.findOne({email});
-            if(isAlreadyExist){
-                res.status(400).send('user already exists');
-            } else {
-                const newUser = new Users({fullName,email});
-                bcryptjs.hash(password, 10, (err,hashedPassword) => {
-                    newUser.set('password', hashedPassword);
-                     newUser.save();
-                     next();
-                })
-                return res.status(200).send('user registered successfully');
-            }
+        console.log('Request Body:', req.body);
+
+        if (!fullName || !email || !password) {
+            console.log('Missing required fields');
+            return res.status(400).send('Please fill all required fields');
         }
 
-    } catch(error){
+        const isAlreadyExist = await Users.findOne({ email });
+        if (isAlreadyExist) {
+            console.log('User already exists');
+            return res.status(400).send('User already exists');
+        }
 
+        const newUser = new Users({ fullName, email });
+        bcryptjs.hash(password, 10, async (err, hashedPassword) => {
+            if (err) {
+                console.error('Error hashing password:', err);
+                return res.status(500).send('Error hashing password');
+            }
+
+            newUser.set('password', hashedPassword);
+            try {
+                await newUser.save();
+                console.log('User registered successfully');
+                return res.status(200).send('User registered successfully');
+            } catch (saveErr) {
+                console.error('Error saving user:', saveErr);
+                return res.status(500).send('Error saving user');
+            }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal server error');
     }
-})
+});
 
 app.post('/api/login' , async (req,res,next) => {
     try{
