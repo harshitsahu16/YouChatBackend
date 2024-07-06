@@ -9,7 +9,9 @@ const server = require('http').createServer(app);
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: '*',
+        origin: 'https://creative-platypus-200125.netlify.app',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     }
 });
 //connnect db
