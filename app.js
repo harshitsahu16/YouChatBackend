@@ -9,7 +9,7 @@ const server = require('http').createServer(app);
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: ['https://radiant-swan-184144.netlify.app' , 'http://localhost:3000'],
+        origin: ['https://radiant-swan-184144.netlify.app' , 'http://localhost:3000' , 'https://you-chat-frontend.vercel.app'],
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
     }
@@ -51,6 +51,8 @@ io.on('connection', socket => {
         } else {
             io.to(sender.socketId).emit('getMessage', {senderId,conversationId,message,receiverId, user: { id: user._id , fullName: user.fullName , email: user.email} }); 
         }
+
+        io.emit('updateConversations', {senderId, receiverId, conversationId, message, user: {id: user._id, fullName: user.fullName, email: user.email}});
     });
 
     socket.on('disconnect' , () => {
