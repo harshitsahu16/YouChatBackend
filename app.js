@@ -20,13 +20,18 @@ require('./db/connection');
 //import files
 const Users = require('./models/Users');
 const Conversation = require('./models/Conversation');
-const Messages = require('./models/Messages')
+const Messages = require('./models/Messages');
 
+const corsOptions = {
+    origin: ['https://radiant-swan-184144.netlify.app', 'http://localhost:3000', 'https://you-chat-frontend.vercel.app'],
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 
 //app use
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
-app.use(cors());
 
 
 //socket.io
